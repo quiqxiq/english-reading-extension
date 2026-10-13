@@ -1,0 +1,75 @@
+/* Styles for words when Reading Mode is active */
+.eir-word {
+  cursor: pointer !important;
+  border-radius: 2px !important;
+  transition: background-color 0.15s ease, border-color 0.15s ease !important;
+  position: relative !important;
+  display: inline !important;
+}
+
+.eir-word:hover {
+  background-color: rgba(59, 130, 246, 0.2) !important;
+  outline: 1px solid rgba(59, 130, 246, 0.5) !important;
+}
+
+/* Status: Unknown (clean, no styling as requested) */
+.eir-status-unknown {
+  border-bottom: none !important;
+  background-color: transparent !important;
+}
+
+/* Status: Learn (yellow highlighter / marker effect) */
+.eir-status-learning {
+  background-color: rgba(254, 240, 138, 0.75) !important;
+  border-bottom: 2px solid #ca8a04 !important;
+  border-radius: 3px !important;
+  padding: 1px 2px !important;
+}
+
+/* Status: Known (bright green underline) */
+.eir-status-known {
+  background-color: transparent !important;
+  border-bottom: 2px solid #22c55e !important;
+}
+
+/* Status: Ignored */
+.eir-status-ignored {
+  border-bottom: none !important;
+  background-color: transparent !important;
+}
+
+/* Floating Badge when Reading Mode is Active */
+#eir-floating-badge {
+  position: fixed !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  z-index: 2147483640 !important;
+  background: #1e293b !important;
+  color: #f8fafc !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  padding: 8px 14px !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  border: 1px solid #334155 !important;
+  opacity: 0.95 !important;
+  transition: transform 0.2s ease, opacity 0.2s ease !important;
+}
+
+#eir-floating-badge:hover {
+  transform: translateY(-2px) !important;
+  opacity: 1 !important;
+}
+
+#eir-floating-badge .indicator-dot {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  background-color: #22c55e !important;
+  box-shadow: 0 0 6px #22c55e !important;
+}

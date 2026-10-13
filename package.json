@@ -1,0 +1,24 @@
+{
+  "name": "english-immersion-reader",
+  "version": "1.0.0",
+  "description": "Firefox extension for English reading immersion, custom AI prompts, and AnkiConnect integration",
+  "type": "module",
+  "scripts": {
+    "dev": "node build.js",
+    "build": "node build.js",
+    "start": "web-ext run --source-dir dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@floating-ui/dom": "^1.6.13",
+    "lucide": "^1.55.0",
+    "marked": "^18.1.1"
+  },
+  "devDependencies": {
+    "@types/firefox-webext-browser": "^120.0.4",
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3",
+    "web-ext": "^10.7.0"
+  }
+}

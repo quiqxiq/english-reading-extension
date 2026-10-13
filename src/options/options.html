@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Settings - English Immersion Reader</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="options-container">
+    <header class="page-header">
+      <div class="header-title">
+        <span class="icon">⚙️</span>
+        <div>
+          <h1>Settings & Custom AI Prompts</h1>
+          <p class="subtitle">Customize AI behavior, AnkiConnect integration, and language settings for English Immersion Reader.</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="save-btn" class="primary-btn">💾 Save Changes</button>
+      </div>
+    </header>
+
+    <div id="toast" class="toast" style="display: none;"></div>
+
+    <!-- 1. General Configuration -->
+    <section class="card">
+      <h2 class="card-title">🔑 API & Anki Configuration</h2>
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label for="openrouter-key">OpenRouter API Key</label>
+          <div class="input-with-button">
+            <input type="password" id="openrouter-key" placeholder="sk-or-v1-..." autocomplete="off">
+            <button type="button" id="toggle-key-visibility" class="icon-toggle-btn" title="Show/Hide Key">👁️</button>
+            <button type="button" id="test-key-btn" class="secondary-inline-btn">🧪 Test API Connection</button>
+          </div>
+          <div id="key-test-status" class="key-status-msg" style="display: none;"></div>
+          <span class="hint">Get your free API Key at <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">openrouter.ai/keys</a>.</span>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="openrouter-model">AI Model</label>
+          <select id="openrouter-model">
+            <option value="google/gemma-4-26b-a4b-it:free">Google: Gemma 4 26B A4B (Free - Fast & Smart, Recommended)</option>
+            <option value="openrouter/free">OpenRouter: Free Auto-Router (Free)</option>
+            <option value="google/gemma-4-31b-it:free">Google: Gemma 4 31B Instruct (Free - Flagship)</option>
+            <option value="nvidia/nemotron-3.5-lightning:free">NVIDIA: Nemotron 3.5 Lightning (Free - High Speed)</option>
+          </select>
+          <span class="hint">Dedicated model used for Word Nuance & Sentence Breakdown. Automatically falls back to OpenRouter Free if temporarily rate-limited.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="anki-deck">Anki Deck Name</label>
+          <input type="text" id="anki-deck" value="English Immersion">
+          <span class="hint">Name of the deck where new cards will be automatically saved via AnkiConnect.</span>
+        </div>
+
+        <div class="form-group" style="justify-content: center;">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-top: 14px;">
+            <input type="checkbox" id="anki-allow-duplicates" checked style="width: 16px; height: 16px; accent-color: #2563eb;">
+            <span>Allow Duplicate Cards</span>
+          </label>
+          <span class="hint">Check to allow saving the same word with different context sentences without duplicate card errors.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="dict-provider">Primary Dictionary Provider</label>
+          <select id="dict-provider">
+            <option value="cambridge">Cambridge English Dictionary (Official Comprehensive)</option>
+            <option value="ai_dict">AI Smart Dictionary (Cambridge/Oxford-style formatted by AI)</option>
+            <option value="oxford">Oxford Learner's Dictionaries</option>
+            <option value="free_dict">Free Dictionary API (api.dictionaryapi.dev)</option>
+          </select>
+          <span class="hint">Primary source used to retrieve definitions and example sentences.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="trans-provider">Primary Translation Provider</label>
+          <select id="trans-provider">
+            <option value="google">Google Translate (Fast & Comprehensive)</option>
+            <option value="cambridge_id">Cambridge English-Indonesian Dictionary</option>
+          </select>
+          <span class="hint">Service used to translate words and context sentences.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="interface-lang">Output Language ([INTERFACE_LANG])</label>
+          <input type="text" id="interface-lang" value="Indonesian">
+          <span class="hint">Language used by the AI when providing explanations (e.g. English, Indonesian).</span>
+        </div>
+
+        <div class="form-group">
+          <label for="target-lang">Target Language ([TARGET_LANG])</label>
+          <input type="text" id="target-lang" value="English" readonly>
+          <span class="hint">Language of the reading material being studied.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Custom AI Prompts Variable Guide -->
+    <section class="card variable-guide-card">
+      <h2 class="card-title">🧩 Custom AI Prompts Variable Guide</h2>
+      <p class="guide-desc">
+        You are free to customize the <strong>System Prompt</strong> and <strong>User Prompt</strong> below according to your learning preferences.
+        The system will automatically interpolate the following variables when queries are executed:
+      </p>
+      <div class="variable-tags">
+        <div class="tag-item"><code>[WORD]</code> <span>The target English word being looked up</span></div>
+        <div class="tag-item"><code>[SENTENCE]</code> <span>The full context sentence containing the word</span></div>
+        <div class="tag-item"><code>[TARGET_LANG]</code> <span>The language being studied (English)</span></div>
+        <div class="tag-item"><code>[INTERFACE_LANG]</code> <span>The interface / output language (e.g. Indonesian)</span></div>
+      </div>
+      <div class="reset-row">
+        <button id="reset-prompts-btn" class="danger-outline-btn">🔄 Reset All Prompts to Default</button>
+      </div>
+    </section>
+
+    <!-- 3. Custom AI Prompt Editors -->
+    <section class="card">
+      <h2 class="card-title">📝 Custom AI Prompt Editors</h2>
+
+      <!-- Prompt Category Tabs -->
+      <div class="prompt-tabs">
+        <button class="prompt-tab-btn active" data-cat="learning_dictionary">Learning Dict (AI)</button>
+        <button class="prompt-tab-btn" data-cat="word_explanation">Word Nuance</button>
+        <button class="prompt-tab-btn" data-cat="sentence_breakdown">Sentence Breakdown</button>
+        <button class="prompt-tab-btn" data-cat="sentence_translation">Sentence Translation</button>
+        <button class="prompt-tab-btn" data-cat="word_translation">Word Translation</button>
+      </div>
+
+      <!-- Form Container for Active Prompt -->
+      <div id="prompt-editors-container" class="prompt-editors">
+        <!-- Rendered dynamically by options.ts -->
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="options.ts"></script>
+</body>
+</html>
