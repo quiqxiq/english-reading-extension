@@ -244,12 +244,6 @@ export class YouTubeSidebarManager {
       onCueChange: (_cue, index) => {
         this.highlightCue(index);
       },
-      onCountdownTick: (remaining, total) => {
-        this.showCountdown(remaining, total);
-      },
-      onCountdownEnd: () => {
-        this.hideCountdown();
-      },
     });
 
     StorageService.getSettings().then((s) => {
@@ -328,26 +322,6 @@ export class YouTubeSidebarManager {
     }
   }
 
-  private static showCountdown(remaining: number, total: number): void {
-    const banner = this.container?.querySelector('#eir-yt-countdown-banner') as HTMLElement | null;
-    const textEl = this.container?.querySelector('#eir-yt-countdown-text') as HTMLElement | null;
-    const progressEl = this.container?.querySelector('#eir-yt-countdown-bar') as HTMLElement | null;
-
-    if (banner && textEl && progressEl) {
-      banner.style.display = 'block';
-      textEl.textContent = `Menirukan (Shadowing): ${remaining.toFixed(1)}s`;
-      const percent = Math.max(0, Math.min(100, (remaining / total) * 100));
-      progressEl.style.width = `${percent}%`;
-    }
-  }
-
-  private static hideCountdown(): void {
-    const banner = this.container?.querySelector('#eir-yt-countdown-banner') as HTMLElement | null;
-    if (banner) {
-      banner.style.display = 'none';
-    }
-  }
-
   /**
    * Builds the main sidebar DOM frame and injects it into YouTube's secondary panel.
    */
@@ -421,17 +395,6 @@ export class YouTubeSidebarManager {
           <button id="eir-yt-next-btn" class="eir-yt-nav-btn" title="Kalimat Berikutnya (Shortcut: D)">
             Next ${Icons.skipForward({ size: 14 })}
           </button>
-        </div>
-
-        <!-- Shadowing Countdown Banner -->
-        <div id="eir-yt-countdown-banner" class="eir-yt-countdown-banner" style="display: none;">
-          <div class="eir-yt-countdown-content">
-            <span class="eir-yt-countdown-icon">⏸️</span>
-            <span id="eir-yt-countdown-text">Menirukan (Shadowing): 2.5s</span>
-          </div>
-          <div class="eir-yt-countdown-bar-wrap">
-            <div id="eir-yt-countdown-bar" class="eir-yt-countdown-bar"></div>
-          </div>
         </div>
       </div>
 

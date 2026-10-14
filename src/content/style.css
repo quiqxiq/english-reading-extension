@@ -93,8 +93,7 @@
 
 .eir-yt-container.collapsed .eir-yt-body,
 .eir-yt-container.collapsed .eir-yt-toolbar,
-.eir-yt-container.collapsed .eir-yt-nav-row,
-.eir-yt-container.collapsed .eir-yt-countdown-banner {
+.eir-yt-container.collapsed .eir-yt-nav-row {
   display: none !important;
 }
 
@@ -302,51 +301,12 @@
   background: rgba(234, 179, 8, 0.28) !important;
 }
 
-/* Shadowing Countdown Banner */
-.eir-yt-countdown-banner {
-  background: linear-gradient(135deg, rgba(234, 179, 8, 0.2), rgba(202, 138, 4, 0.28)) !important;
-  border: 1px solid rgba(234, 179, 8, 0.45) !important;
-  border-radius: 8px !important;
-  padding: 8px 12px !important;
-  animation: eirPulse 1.8s infinite ease-in-out !important;
-}
-
-@keyframes eirPulse {
-  0%, 100% { opacity: 0.95; }
-  50% { opacity: 0.75; }
-}
-
-.eir-yt-countdown-content {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  font-size: 12px !important;
-  font-weight: 600 !important;
-  color: #fef08a !important;
-  margin-bottom: 5px !important;
-}
-
-.eir-yt-countdown-bar-wrap {
-  width: 100% !important;
-  height: 4px !important;
-  background: rgba(0, 0, 0, 0.25) !important;
-  border-radius: 2px !important;
-  overflow: hidden !important;
-}
-
-.eir-yt-countdown-bar {
-  height: 100% !important;
-  background: #facc15 !important;
-  width: 100% !important;
-  transition: width 0.1s linear !important;
-}
-
 /* Transcript Body */
 .eir-yt-body {
   max-height: 520px !important;
   overflow-y: auto !important;
   scroll-behavior: smooth !important;
-  padding: 4px 0 !important;
+  padding: 6px 2px !important;
 }
 
 .eir-yt-body::-webkit-scrollbar {
@@ -358,61 +318,71 @@
   border-radius: 3px !important;
 }
 
-/* Individual Cue Item - Focus & Blur Mode */
+/* Individual Cue Item - Modern Fluent Glass / Lyrics Mode */
 .eir-yt-cue {
   display: flex !important;
   align-items: flex-start !important;
   justify-content: space-between !important;
   gap: 12px !important;
-  padding: 12px 14px !important;
-  border-bottom: 1px solid var(--yt-spec-10-percent-layer, rgba(255, 255, 255, 0.04)) !important;
-  border-left: 4px solid transparent !important;
-  border-radius: 8px !important;
-  margin: 4px 6px !important;
+  padding: 10px 14px !important;
+  border-radius: 10px !important;
+  margin: 3px 4px !important;
   cursor: pointer !important;
   position: relative !important;
-  opacity: 0.38 !important;
-  filter: blur(1.2px) !important;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  opacity: 0.28 !important;
+  filter: blur(1.5px) !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              filter 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.25s ease,
+              border-color 0.25s ease !important;
 }
 
 .eir-yt-cue:hover {
-  opacity: 0.88 !important;
+  opacity: 0.72 !important;
   filter: blur(0px) !important;
-  background: rgba(255, 255, 255, 0.04) !important;
+  background: rgba(255, 255, 255, 0.035) !important;
 }
 
 .eir-yt-cue.active {
   opacity: 1 !important;
   filter: none !important;
-  background: rgba(59, 130, 246, 0.14) !important;
-  border-left-color: #3b82f6 !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
-  transform: scale(1.015) !important;
+  background: rgba(255, 255, 255, 0.065) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
 }
 
 .eir-yt-content-wrap {
   flex: 1 !important;
   display: flex !important;
   flex-direction: column !important;
-  gap: 5px !important;
+  gap: 4px !important;
 }
 
 .eir-yt-text {
   font-size: 16.5px !important;
   line-height: 1.6 !important;
   font-weight: 500 !important;
-  color: var(--yt-spec-text-primary, #f1f5f9) !important;
+  color: var(--yt-spec-text-secondary, #cbd5e1) !important;
   word-break: break-word !important;
+  transition: color 0.2s ease !important;
+}
+
+.eir-yt-cue.active .eir-yt-text {
+  font-weight: 600 !important;
+  color: #ffffff !important;
 }
 
 .eir-yt-translation {
   font-size: 13.5px !important;
   line-height: 1.5 !important;
-  color: #93c5fd !important;
-  font-style: italic !important;
-  margin-top: 3px !important;
-  opacity: 0.95 !important;
+  color: #7dd3fc !important;
+  margin-top: 2px !important;
+  opacity: 0.9 !important;
+  font-style: normal !important;
   transition: opacity 0.2s ease !important;
 }
 
@@ -420,8 +390,8 @@
   background: transparent !important;
   border: none !important;
   color: var(--yt-spec-text-secondary, #94a3b8) !important;
-  padding: 4px !important;
-  border-radius: 4px !important;
+  padding: 5px !important;
+  border-radius: 6px !important;
   cursor: pointer !important;
   opacity: 0 !important;
   transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease !important;
@@ -433,12 +403,12 @@
 
 .eir-yt-cue:hover .eir-yt-cue-replay,
 .eir-yt-cue.active .eir-yt-cue-replay {
-  opacity: 0.8 !important;
+  opacity: 0.7 !important;
 }
 
 .eir-yt-cue-replay:hover {
   opacity: 1 !important;
-  background: rgba(255, 255, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
   color: #fde047 !important;
 }
 

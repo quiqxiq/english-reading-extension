@@ -2,8 +2,8 @@ import { SubtitleCue } from './youtubeCaption';
 
 export interface ShadowingCallbacks {
   onCueChange: (cue: SubtitleCue | null, index: number) => void;
-  onCountdownTick: (remainingSeconds: number, totalSeconds: number) => void;
-  onCountdownEnd: () => void;
+  onCountdownTick?: (remainingSeconds: number, totalSeconds: number) => void;
+  onCountdownEnd?: () => void;
 }
 
 export class YouTubeShadowingController {
@@ -19,7 +19,7 @@ export class YouTubeShadowingController {
 
   // Timers & State
   private trackingInterval: number | null = null;
-  private countdownInterval: number | null = null;
+  private pauseTimeout: number | null = null;
   private isCurrentlyShadowingPaused = false;
   private callbacks: ShadowingCallbacks;
 
@@ -234,7 +234,7 @@ export class YouTubeShadowingController {
   }
 
   /**
-   * Triggers the shadowing pause, halts playback, runs visual countdown, and auto-resumes when complete.
+   * Triggers the shadowing pause, halts playback for pauseDelaySeconds, and auto-resumes when complete.
    */
   private triggerShadowingPause(cueIndex: number): void {
     if (!this.video) return;
@@ -252,28 +252,23 @@ export class YouTubeShadowingController {
       this.video.currentTime = cue.end;
     }
 
-    const totalSeconds = this.pauseDelaySeconds;
-    let remaining = totalSeconds;
-    this.callbacks.onCountdownTick(remaining, totalSeconds);
+    if (this.pauseTimeout !== null) {
+      clearTimeout(this.pauseTimeout);
+    }
 
-    const stepMs = 100;
-    this.countdownInterval = window.setInterval(() => {
-      remaining = Math.max(0, remaining - stepMs / 1000);
-      this.callbacks.onCountdownTick(Math.round(remaining * 10) / 10, totalSeconds);
-
-      if (remaining <= 0) {
-        this.finishCountdown();
-      }
-    }, stepMs);
+    // Silent pause without timer on screen, auto-resumes after pauseDelaySeconds
+    this.pauseTimeout = window.setTimeout(() => {
+      this.finishCountdown();
+    }, this.pauseDelaySeconds * 1000);
   }
 
   private finishCountdown(): void {
-    if (this.countdownInterval !== null) {
-      clearInterval(this.countdownInterval);
-      this.countdownInterval = null;
+    if (this.pauseTimeout !== null) {
+      clearTimeout(this.pauseTimeout);
+      this.pauseTimeout = null;
     }
     this.isCurrentlyShadowingPaused = false;
-    this.callbacks.onCountdownEnd();
+    this.callbacks.onCountdownEnd?.();
 
     // Auto-resume video playback
     if (this.video && this.isShadowingEnabled) {
@@ -286,12 +281,12 @@ export class YouTubeShadowingController {
   }
 
   private cancelCountdown(): void {
-    if (this.countdownInterval !== null) {
-      clearInterval(this.countdownInterval);
-      this.countdownInterval = null;
+    if (this.pauseTimeout !== null) {
+      clearTimeout(this.pauseTimeout);
+      this.pauseTimeout = null;
     }
     this.isCurrentlyShadowingPaused = false;
-    this.callbacks.onCountdownEnd();
+    this.callbacks.onCountdownEnd?.();
   }
 
   /**
