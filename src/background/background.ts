@@ -17,14 +17,20 @@ browser.runtime.onMessage.addListener((message: any) => {
   if (message.action === 'FETCH_EXTERNAL_URL') {
     return (async () => {
       try {
-        const res = await fetch(message.url, {
-          headers: {
-            'User-Agent':
-              'Mozilla/5.0 (X11; Linux x86_64; rv:130.0) Gecko/20100101 Firefox/130.0',
-            'Accept':
-              'text/html,application/xhtml+xml,application/xml;q=0.9,application/json,*/*;q=0.8',
-          },
-        });
+        const headers: Record<string, string> = {
+          'User-Agent':
+            'Mozilla/5.0 (X11; Linux x86_64; rv:130.0) Gecko/20100101 Firefox/130.0',
+          'Accept':
+            'text/html,application/xhtml+xml,application/xml;q=0.9,application/json,*/*;q=0.8',
+          ...(message.headers || {}),
+        };
+
+        if (message.url.includes('youtube.com')) {
+          headers['Referer'] = 'https://www.youtube.com/';
+          headers['Origin'] = 'https://www.youtube.com';
+        }
+
+        const res = await fetch(message.url, { headers });
         if (!res.ok) {
           return { success: false, status: res.status, error: `HTTP ${res.status}` };
         }

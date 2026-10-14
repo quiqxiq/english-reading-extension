@@ -114,6 +114,15 @@ export class YouTubeSidebarManager {
     this.availableTracks = await YouTubeCaptionService.getAvailableTracks(videoId);
 
     if (this.availableTracks.length === 0) {
+      // Try extracting from native YouTube DOM directly
+      const nativeCues = await YouTubeCaptionService.extractCuesFromNativeDOMWithRetry();
+      if (nativeCues.length > 0) {
+        this.currentCues = nativeCues;
+        await this.renderCuesList(this.currentCues);
+        this.bindVideoElement();
+        return;
+      }
+
       this.renderEmpty('Tidak ada transkrip subtitle yang tersedia untuk video ini.');
       return;
     }
@@ -133,19 +142,29 @@ export class YouTubeSidebarManager {
     this.currentCues = await YouTubeCaptionService.fetchSubtitles(track);
 
     if (this.currentCues.length === 0) {
-      this.renderEmpty('Gagal memuat baris transkrip dari track ini.');
+      // Fallback: try native DOM extraction
+      const nativeCues = await YouTubeCaptionService.extractCuesFromNativeDOMWithRetry();
+      if (nativeCues.length > 0) {
+        this.currentCues = nativeCues;
+        await this.renderCuesList(this.currentCues);
+        this.bindVideoElement();
+        return;
+      }
+
+      this.renderEmpty('Gagal memuat baris transkrip dari track ini. Silakan coba pilih track lain atau putar video terlebih dahulu.');
       return;
     }
 
     // Render cues list
     await this.renderCuesList(this.currentCues);
+    this.bindVideoElement();
+  }
 
-    // Attach Shadowing Controller to HTML5 video element
+  private static bindVideoElement(): void {
     const video = (document.querySelector('video.html5-main-video') || document.querySelector('video')) as HTMLVideoElement | null;
     if (video) {
       this.attachController(video);
     } else {
-      // Retry once video element is ready
       const checkVid = setInterval(() => {
         const v = document.querySelector('video') as HTMLVideoElement | null;
         if (v) {
