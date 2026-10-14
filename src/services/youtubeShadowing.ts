@@ -18,14 +18,16 @@ export class YouTubeShadowingController {
   private autoScroll = true;
 
   // Timers & State
-  private countdownTimer: number | null = null;
+  private trackingInterval: number | null = null;
   private countdownInterval: number | null = null;
   private isCurrentlyShadowingPaused = false;
   private callbacks: ShadowingCallbacks;
 
   constructor(callbacks: ShadowingCallbacks) {
     this.callbacks = callbacks;
-    this.handleTimeUpdate = this.handleTimeUpdate.bind(this);
+    this.handleCheck = this.handleCheck.bind(this);
+    this.handlePlay = this.handlePlay.bind(this);
+    this.handlePause = this.handlePause.bind(this);
     this.handleSeeking = this.handleSeeking.bind(this);
   }
 
@@ -40,23 +42,34 @@ export class YouTubeShadowingController {
     this.lastPausedCueIndex = -1;
     this.isCurrentlyShadowingPaused = false;
 
-    this.video.addEventListener('timeupdate', this.handleTimeUpdate);
+    this.video.addEventListener('play', this.handlePlay);
+    this.video.addEventListener('pause', this.handlePause);
+    this.video.addEventListener('timeupdate', this.handleCheck);
     this.video.addEventListener('seeking', this.handleSeeking);
 
-    // Initial check
-    this.handleTimeUpdate();
+    if (!this.video.paused) {
+      this.startPlaybackTracking();
+    }
+
+    // Initial position evaluation
+    this.handleCheck();
   }
 
   /**
    * Cleans up event listeners and ongoing timers.
    */
   detach(): void {
+    this.stopPlaybackTracking();
     this.cancelCountdown();
+
     if (this.video) {
-      this.video.removeEventListener('timeupdate', this.handleTimeUpdate);
+      this.video.removeEventListener('play', this.handlePlay);
+      this.video.removeEventListener('pause', this.handlePause);
+      this.video.removeEventListener('timeupdate', this.handleCheck);
       this.video.removeEventListener('seeking', this.handleSeeking);
       this.video = null;
     }
+
     this.cues = [];
     this.activeCueIndex = -1;
     this.lastPausedCueIndex = -1;
@@ -67,7 +80,7 @@ export class YouTubeShadowingController {
     this.cues = cues;
     this.activeCueIndex = -1;
     this.lastPausedCueIndex = -1;
-    this.handleTimeUpdate();
+    this.handleCheck();
   }
 
   setShadowingEnabled(enabled: boolean): void {
@@ -102,15 +115,61 @@ export class YouTubeShadowingController {
     return this.activeCueIndex;
   }
 
+  private handlePlay(): void {
+    if (this.isCurrentlyShadowingPaused) {
+      // User manually hit play or space during countdown; cancel countdown and proceed
+      this.cancelCountdown();
+    }
+    this.startPlaybackTracking();
+  }
+
+  private handlePause(): void {
+    if (!this.isCurrentlyShadowingPaused) {
+      this.stopPlaybackTracking();
+    }
+  }
+
+  private startPlaybackTracking(): void {
+    this.stopPlaybackTracking();
+    // High-frequency 35ms polling ensures we never miss sentence ends due to coarse 250ms timeupdate ticks
+    this.trackingInterval = window.setInterval(() => {
+      this.handleCheck();
+    }, 35);
+  }
+
+  private stopPlaybackTracking(): void {
+    if (this.trackingInterval !== null) {
+      clearInterval(this.trackingInterval);
+      this.trackingInterval = null;
+    }
+  }
+
   /**
-   * Main time listener: updates active cue & triggers shadowing pause.
+   * Main checking engine: identifies sentence end boundaries with high accuracy and triggers auto-pause.
    */
-  private handleTimeUpdate(): void {
+  private handleCheck(): void {
     if (!this.video || this.cues.length === 0) return;
 
     const currentTime = this.video.currentTime;
 
-    // Find cue matching current time
+    // 1. Boundary check: If currently inside an active sentence, did it reach/pass the end of this sentence?
+    if (this.isShadowingEnabled && !this.isCurrentlyShadowingPaused && this.activeCueIndex >= 0) {
+      const activeCue = this.cues[this.activeCueIndex];
+      const nextCue = this.cues[this.activeCueIndex + 1];
+      const maxBoundary = nextCue ? Math.min(nextCue.start + 0.1, activeCue.end + 0.35) : activeCue.end + 0.35;
+
+      // Trigger pause when currentTime reaches activeCue.end (within 0.08s of end or up to boundary)
+      if (
+        currentTime >= activeCue.end - 0.08 &&
+        currentTime <= maxBoundary &&
+        this.lastPausedCueIndex !== this.activeCueIndex
+      ) {
+        this.triggerShadowingPause(this.activeCueIndex);
+        return;
+      }
+    }
+
+    // 2. Find matching cue for currentTime
     let foundIndex = -1;
     for (let i = 0; i < this.cues.length; i++) {
       const cue = this.cues[i];
@@ -120,44 +179,78 @@ export class YouTubeShadowingController {
       }
     }
 
-    // Cue transition
-    if (foundIndex !== this.activeCueIndex) {
+    // If currentTime is in a silence gap between sentences, keep previous cue active temporarily
+    if (foundIndex === -1 && this.activeCueIndex >= 0) {
+      const prevCue = this.cues[this.activeCueIndex];
+      const nextCue = this.cues[this.activeCueIndex + 1];
+      if (currentTime >= prevCue.end && (!nextCue || currentTime < nextCue.start)) {
+        // Did we miss pausing at the end of prevCue before entering the gap?
+        if (
+          this.isShadowingEnabled &&
+          !this.isCurrentlyShadowingPaused &&
+          this.lastPausedCueIndex !== this.activeCueIndex &&
+          currentTime <= prevCue.end + 0.35
+        ) {
+          this.triggerShadowingPause(this.activeCueIndex);
+          return;
+        }
+        foundIndex = this.activeCueIndex;
+      }
+    }
+
+    // 3. Sentence transition: Did playback advance into the next sentence?
+    if (foundIndex !== -1 && foundIndex !== this.activeCueIndex) {
+      // If playback skipped past activeCue into activeCue+1 without pausing:
+      if (
+        this.isShadowingEnabled &&
+        !this.isCurrentlyShadowingPaused &&
+        this.activeCueIndex >= 0 &&
+        foundIndex === this.activeCueIndex + 1 &&
+        this.lastPausedCueIndex !== this.activeCueIndex
+      ) {
+        this.triggerShadowingPause(this.activeCueIndex);
+        return;
+      }
+
       this.activeCueIndex = foundIndex;
       const cue = foundIndex >= 0 ? this.cues[foundIndex] : null;
       this.callbacks.onCueChange(cue, foundIndex);
-    }
-
-    // Shadowing Auto-pause Check:
-    // When playback reaches near the end of the active cue, pause for shadowing!
-    if (this.isShadowingEnabled && this.activeCueIndex >= 0 && !this.isCurrentlyShadowingPaused) {
-      const currentCue = this.cues[this.activeCueIndex];
-      // Check if currentTime reached cue.end (with 0.15s tolerance before next sentence begins)
-      if (currentTime >= currentCue.end - 0.15 && this.lastPausedCueIndex !== this.activeCueIndex) {
-        this.triggerShadowingPause(this.activeCueIndex);
-      }
+    } else if (foundIndex === -1 && this.activeCueIndex !== -1) {
+      this.activeCueIndex = -1;
+      this.callbacks.onCueChange(null, -1);
     }
   }
 
   /**
-   * Resets lastPausedCueIndex when user manually seeks.
+   * Resets pause tracking when user manually seeks.
    */
   private handleSeeking(): void {
-    this.cancelCountdown();
-    this.lastPausedCueIndex = -1;
+    if (this.isCurrentlyShadowingPaused) {
+      this.cancelCountdown();
+    }
     this.isCurrentlyShadowingPaused = false;
+    this.lastPausedCueIndex = -1;
+    this.activeCueIndex = -1;
   }
 
   /**
-   * Triggers the shadowing pause, begins visual countdown, and auto-resumes when complete.
+   * Triggers the shadowing pause, halts playback, runs visual countdown, and auto-resumes when complete.
    */
   private triggerShadowingPause(cueIndex: number): void {
     if (!this.video) return;
 
     this.lastPausedCueIndex = cueIndex;
     this.isCurrentlyShadowingPaused = true;
+    this.stopPlaybackTracking();
 
-    // Pause playback
+    // Pause video playback immediately
     this.video.pause();
+
+    // Snap video time to the end of the sentence so audio does not bleed into next cue
+    const cue = this.cues[cueIndex];
+    if (cue && this.video.currentTime > cue.end) {
+      this.video.currentTime = cue.end;
+    }
 
     const totalSeconds = this.pauseDelaySeconds;
     let remaining = totalSeconds;
@@ -175,13 +268,18 @@ export class YouTubeShadowingController {
   }
 
   private finishCountdown(): void {
-    this.cancelCountdown();
+    if (this.countdownInterval !== null) {
+      clearInterval(this.countdownInterval);
+      this.countdownInterval = null;
+    }
     this.isCurrentlyShadowingPaused = false;
     this.callbacks.onCountdownEnd();
 
     // Auto-resume video playback
     if (this.video && this.isShadowingEnabled) {
-      this.video.play().catch((err) => {
+      this.video.play().then(() => {
+        this.startPlaybackTracking();
+      }).catch((err) => {
         console.debug('[EIR YouTube] Auto-play was prevented by browser policy:', err);
       });
     }
@@ -191,10 +289,6 @@ export class YouTubeShadowingController {
     if (this.countdownInterval !== null) {
       clearInterval(this.countdownInterval);
       this.countdownInterval = null;
-    }
-    if (this.countdownTimer !== null) {
-      clearTimeout(this.countdownTimer);
-      this.countdownTimer = null;
     }
     this.isCurrentlyShadowingPaused = false;
     this.callbacks.onCountdownEnd();
@@ -207,13 +301,18 @@ export class YouTubeShadowingController {
     if (!this.video || index < 0 || index >= this.cues.length) return;
 
     this.cancelCountdown();
-    this.lastPausedCueIndex = -1;
+    this.activeCueIndex = index;
+    this.lastPausedCueIndex = -1; // Reset so this cue WILL pause when it finishes!
 
     const targetCue = this.cues[index];
-    this.video.currentTime = Math.max(0, targetCue.start + 0.05);
+    this.video.currentTime = Math.max(0, targetCue.start + 0.02);
+
+    this.callbacks.onCueChange(targetCue, index);
 
     if (autoPlay) {
-      this.video.play().catch(() => {});
+      this.video.play().then(() => {
+        this.startPlaybackTracking();
+      }).catch(() => {});
     }
   }
 
