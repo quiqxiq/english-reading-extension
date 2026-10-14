@@ -100,3 +100,10 @@ browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     return false;
   }
 });
+
+// Automatically initialize YouTube Interactive Transcript & Shadowing on YouTube
+import { YouTubeSidebarManager } from './youtubeSidebar';
+
+if (window.location.hostname.includes('youtube.com')) {
+  YouTubeSidebarManager.init();
+}

@@ -61,6 +61,22 @@ Unlike raw markdown text, the **Learning Dict** tab renders full GitHub Flavored
 
 ---
 
+### 6. 🎥 YouTube Immersion: Synchronized Transcript & Auto-Pause Shadowing
+Transform any YouTube video into an interactive language lab:
+- **Dedicated Sidebar Panel (Option A):** Seamlessly injected into YouTube's right column (`#secondary`) without obscuring the video.
+- **Real-Time Timestamp Sync & Auto-Scroll:** Highlights the currently spoken sentence and smoothly keeps it centered in view. Click any timestamp to instantly seek to that moment.
+- **Smart Sentence Aggregation:** Groups fragmented automatic captions (ASR) into grammatically natural sentences based on punctuation and speech pauses.
+- **Auto-Pause Shadowing & Auto-Resume:**
+  - Automatically pauses playback at the end of each spoken sentence for a customizable duration (default `2.5s`, adjustable from `1.0s` to `6.0s`).
+  - Displays a visual countdown banner (`⏸️ Menirukan (Shadowing): 2.5s...`) so you can repeat and shadow the sentence before playback automatically resumes.
+- **Interactive Word Mastery on YouTube:** Every word in the transcript is tokenized with status colors (**Known**, **Learn**, **Unknown**). Hovering or clicking any word opens the floating 5-tab dictionary and Anki card creation!
+- **Quick Keyboard Shortcuts:**
+  - **`S`** / **`R`**: Replay the current sentence.
+  - **`A`**: Jump to previous sentence.
+  - **`D`**: Jump to next sentence.
+
+---
+
 ## 🛠️ Tech Stack
 
 - **Runtime:** Firefox WebExtension (Manifest V2 / V3 compatible)

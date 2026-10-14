@@ -11,7 +11,15 @@ import {
   Bookmark,
   GraduationCap,
   RefreshCw,
+  RotateCcw,
   Lightbulb,
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  ChevronDown,
+  ChevronUp,
+  Headphones,
   type IconNode,
 } from 'lucide';
 
@@ -54,4 +62,12 @@ export const Icons = {
   graduationCap: (opts?: IconOptions) => iconToSvg(GraduationCap, opts),
   refresh: (opts?: IconOptions) => iconToSvg(RefreshCw, opts),
   lightbulb: (opts?: IconOptions) => iconToSvg(Lightbulb, opts),
+  play: (opts?: IconOptions) => iconToSvg(Play, opts),
+  pause: (opts?: IconOptions) => iconToSvg(Pause, opts),
+  skipBack: (opts?: IconOptions) => iconToSvg(SkipBack, opts),
+  skipForward: (opts?: IconOptions) => iconToSvg(SkipForward, opts),
+  rotateCcw: (opts?: IconOptions) => iconToSvg(RotateCcw, opts),
+  chevronDown: (opts?: IconOptions) => iconToSvg(ChevronDown, opts),
+  chevronUp: (opts?: IconOptions) => iconToSvg(ChevronUp, opts),
+  headphones: (opts?: IconOptions) => iconToSvg(Headphones, opts),
 };

@@ -16,6 +16,10 @@ export interface UserSettings {
   dictionaryProvider: DictionaryProvider;
   translationProvider: TranslationProvider;
   prompts: Record<PromptCategory, PromptConfig>;
+  youtubeShadowingEnabled: boolean;
+  youtubeShadowingDelay: number;
+  youtubeAutoScroll: boolean;
+  youtubeSidebarCollapsed: boolean;
 }
 
 const DEFAULT_SETTINGS: UserSettings = {
@@ -29,6 +33,10 @@ const DEFAULT_SETTINGS: UserSettings = {
   dictionaryProvider: 'cambridge',
   translationProvider: 'google',
   prompts: DEFAULT_PROMPTS,
+  youtubeShadowingEnabled: true,
+  youtubeShadowingDelay: 2.5,
+  youtubeAutoScroll: true,
+  youtubeSidebarCollapsed: false,
 };
 
 export class StorageService {

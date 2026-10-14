@@ -98,6 +98,8 @@ async function buildAll() {
       'https://translate.googleapis.com/*',
       'https://dictionary.cambridge.org/*',
       'https://www.oxfordlearnersdictionaries.com/*',
+      '*://*.youtube.com/*',
+      'https://www.youtube.com/*',
     ],
     background: {
       scripts: ['background.js'],

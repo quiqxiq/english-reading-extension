@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const transProviderSelect = document.getElementById('trans-provider') as HTMLSelectElement;
   const interfaceLangInput = document.getElementById('interface-lang') as HTMLInputElement;
   const targetLangInput = document.getElementById('target-lang') as HTMLInputElement;
+  const ytShadowingDelayInput = document.getElementById('yt-shadowing-delay') as HTMLInputElement;
+  const ytShadowingEnabledCheckbox = document.getElementById('yt-shadowing-enabled') as HTMLInputElement;
 
   const saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
   const resetPromptsBtn = document.getElementById('reset-prompts-btn') as HTMLButtonElement;
@@ -35,6 +37,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   transProviderSelect.value = currentSettings.translationProvider || 'google';
   interfaceLangInput.value = currentSettings.interfaceLang || 'Indonesian';
   targetLangInput.value = currentSettings.targetLang || 'English';
+  if (ytShadowingDelayInput) ytShadowingDelayInput.value = (currentSettings.youtubeShadowingDelay ?? 2.5).toString();
+  if (ytShadowingEnabledCheckbox) ytShadowingEnabledCheckbox.checked = currentSettings.youtubeShadowingEnabled !== false;
 
   // Toggle API Key Visibility
   toggleKeyVisibilityBtn?.addEventListener('click', () => {
@@ -140,6 +144,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     currentSettings.translationProvider = transProviderSelect.value as any;
     currentSettings.interfaceLang = interfaceLangInput.value.trim() || 'Indonesian';
     currentSettings.targetLang = targetLangInput.value.trim() || 'English';
+    if (ytShadowingDelayInput) {
+      currentSettings.youtubeShadowingDelay = parseFloat(ytShadowingDelayInput.value) || 2.5;
+    }
+    if (ytShadowingEnabledCheckbox) {
+      currentSettings.youtubeShadowingEnabled = ytShadowingEnabledCheckbox.checked;
+    }
 
     await StorageService.saveSettings(currentSettings);
 
