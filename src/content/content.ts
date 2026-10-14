@@ -2,7 +2,6 @@ import { DOMTokenizer } from './tokenizer';
 import { TooltipManager } from './tooltip';
 
 let isReadingModeActive = false;
-let hoverTimeout: number | null = null;
 
 function showBadge(): void {
   let badge = document.getElementById('eir-floating-badge');
@@ -34,9 +33,8 @@ async function enableReadingMode(): Promise<void> {
   await DOMTokenizer.tokenizeReadableNodes();
   showBadge();
 
-  // Attach hover events to words
-  document.body.addEventListener('mouseover', handleMouseOver);
-  document.body.addEventListener('mouseout', handleMouseOut);
+  // Attach click events to words (popup opens on click)
+  document.body.addEventListener('click', handleWordClick);
 }
 
 function disableReadingMode(): void {
@@ -47,8 +45,7 @@ function disableReadingMode(): void {
   DOMTokenizer.unwrapAllWords();
   removeBadge();
 
-  document.body.removeEventListener('mouseover', handleMouseOver);
-  document.body.removeEventListener('mouseout', handleMouseOut);
+  document.body.removeEventListener('click', handleWordClick);
 }
 
 export async function toggleReadingMode(): Promise<boolean> {
@@ -60,23 +57,12 @@ export async function toggleReadingMode(): Promise<boolean> {
   return isReadingModeActive;
 }
 
-function handleMouseOver(e: MouseEvent): void {
+function handleWordClick(e: MouseEvent): void {
   const target = (e.target as HTMLElement)?.closest('.eir-word') as HTMLElement | null;
   if (!target) return;
 
-  if (hoverTimeout) clearTimeout(hoverTimeout);
-  hoverTimeout = window.setTimeout(() => {
-    TooltipManager.show(target);
-  }, 220); // Gentle debounce for smooth reading experience
-}
-
-function handleMouseOut(e: MouseEvent): void {
-  const target = (e.target as HTMLElement)?.closest('.eir-word');
-  if (!target) return;
-  if (hoverTimeout) {
-    clearTimeout(hoverTimeout);
-    hoverTimeout = null;
-  }
+  e.stopPropagation();
+  TooltipManager.show(target);
 }
 
 // Global hotkey Alt+R listener directly on page

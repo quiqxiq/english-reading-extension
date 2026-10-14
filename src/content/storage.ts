@@ -20,6 +20,8 @@ export interface UserSettings {
   youtubeShadowingDelay: number;
   youtubeAutoScroll: boolean;
   youtubeSidebarCollapsed: boolean;
+  youtubePreferredLang: 'en' | 'id';
+  youtubeShowTranslation: boolean;
 }
 
 const DEFAULT_SETTINGS: UserSettings = {
@@ -37,6 +39,8 @@ const DEFAULT_SETTINGS: UserSettings = {
   youtubeShadowingDelay: 2.5,
   youtubeAutoScroll: true,
   youtubeSidebarCollapsed: false,
+  youtubePreferredLang: 'en',
+  youtubeShowTranslation: true,
 };
 
 export class StorageService {

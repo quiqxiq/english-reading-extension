@@ -92,7 +92,6 @@
 }
 
 .eir-yt-container.collapsed .eir-yt-body,
-.eir-yt-container.collapsed .eir-yt-track-selector-row,
 .eir-yt-container.collapsed .eir-yt-toolbar,
 .eir-yt-container.collapsed .eir-yt-nav-row,
 .eir-yt-container.collapsed .eir-yt-countdown-banner {
@@ -140,28 +139,6 @@
 .eir-yt-icon-btn:hover {
   background: rgba(255, 255, 255, 0.1) !important;
   color: var(--yt-spec-text-primary, #fff) !important;
-}
-
-/* Track selector */
-.eir-yt-track-selector-row {
-  display: flex !important;
-}
-
-.eir-yt-select {
-  width: 100% !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  color: var(--yt-spec-text-primary, #f1f1f1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: 6px !important;
-  padding: 6px 10px !important;
-  font-size: 12px !important;
-  outline: none !important;
-  cursor: pointer !important;
-}
-
-.eir-yt-select option {
-  background: #18181b !important;
-  color: #f1f1f1 !important;
 }
 
 /* Toolbar */
@@ -381,59 +358,69 @@
   border-radius: 3px !important;
 }
 
-/* Individual Cue Item */
+/* Individual Cue Item - Focus & Blur Mode */
 .eir-yt-cue {
   display: flex !important;
   align-items: flex-start !important;
-  gap: 10px !important;
-  padding: 10px 14px !important;
-  border-bottom: 1px solid var(--yt-spec-10-percent-layer, rgba(255, 255, 255, 0.05)) !important;
-  border-left: 3px solid transparent !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding: 12px 14px !important;
+  border-bottom: 1px solid var(--yt-spec-10-percent-layer, rgba(255, 255, 255, 0.04)) !important;
+  border-left: 4px solid transparent !important;
+  border-radius: 8px !important;
+  margin: 4px 6px !important;
   cursor: pointer !important;
-  transition: background-color 0.15s ease, border-left-color 0.15s ease !important;
   position: relative !important;
+  opacity: 0.38 !important;
+  filter: blur(1.2px) !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .eir-yt-cue:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
+  opacity: 0.88 !important;
+  filter: blur(0px) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
 }
 
 .eir-yt-cue.active {
-  background: rgba(59, 130, 246, 0.15) !important;
+  opacity: 1 !important;
+  filter: none !important;
+  background: rgba(59, 130, 246, 0.14) !important;
   border-left-color: #3b82f6 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+  transform: scale(1.015) !important;
 }
 
-.eir-yt-timestamp {
-  font-size: 11px !important;
-  font-weight: 600 !important;
-  color: #38bdf8 !important;
-  background: rgba(56, 189, 248, 0.12) !important;
-  padding: 2px 6px !important;
-  border-radius: 4px !important;
-  font-variant-numeric: tabular-nums !important;
-  white-space: nowrap !important;
-  user-select: none !important;
-  transition: background-color 0.15s ease, transform 0.1s ease !important;
-}
-
-.eir-yt-timestamp:hover {
-  background: rgba(56, 189, 248, 0.25) !important;
-  transform: scale(1.05) !important;
+.eir-yt-content-wrap {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
 }
 
 .eir-yt-text {
-  flex: 1 !important;
-  font-size: 13.5px !important;
-  line-height: 1.55 !important;
-  color: var(--yt-spec-text-primary, #e2e8f0) !important;
+  font-size: 16.5px !important;
+  line-height: 1.6 !important;
+  font-weight: 500 !important;
+  color: var(--yt-spec-text-primary, #f1f5f9) !important;
   word-break: break-word !important;
+}
+
+.eir-yt-translation {
+  font-size: 13.5px !important;
+  line-height: 1.5 !important;
+  color: #93c5fd !important;
+  font-style: italic !important;
+  margin-top: 3px !important;
+  opacity: 0.95 !important;
+  transition: opacity 0.2s ease !important;
 }
 
 .eir-yt-cue-replay {
   background: transparent !important;
   border: none !important;
   color: var(--yt-spec-text-secondary, #94a3b8) !important;
-  padding: 3px !important;
+  padding: 4px !important;
   border-radius: 4px !important;
   cursor: pointer !important;
   opacity: 0 !important;
@@ -441,6 +428,7 @@
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  margin-top: 2px !important;
 }
 
 .eir-yt-cue:hover .eir-yt-cue-replay,
